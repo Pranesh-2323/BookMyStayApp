@@ -1,120 +1,62 @@
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Scanner;
 
 /**
- * HotelSearchApplication
- *
- * Demonstrates guest room search with read-only access.
- * The system retrieves room availability from centralized inventory
- * and displays only available room types without modifying system state.
- *
- * @author Pranesh Raj
- * @version 1.0
+ * BookingRequestSystem
+ * This program accepts booking requests from users
+ * and stores them in a queue in arrival order (FIFO).
  */
 
-// ---------- ROOM DOMAIN MODEL ----------
-class Room {
+class Reservation {
+    String guestName;
+    String roomType;
 
-    private String roomType;
-    private int beds;
-    private double price;
-
-    public Room(String roomType, int beds, double price) {
+    Reservation(String guestName, String roomType) {
+        this.guestName = guestName;
         this.roomType = roomType;
-        this.beds = beds;
-        this.price = price;
     }
 
-    public String getRoomType() {
-        return roomType;
-    }
-
-    public int getBeds() {
-        return beds;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void displayDetails() {
-        System.out.println("Room Type: " + roomType);
-        System.out.println("Beds: " + beds);
-        System.out.println("Price per Night: $" + price);
+    void display() {
+        System.out.println("Guest: " + guestName + " | Requested Room: " + roomType);
     }
 }
 
-// ---------- INVENTORY (STATE HOLDER) ----------
-class RoomInventory {
-
-    private HashMap<String, Integer> availability;
-
-    public RoomInventory() {
-        availability = new HashMap<>();
-
-        availability.put("Single Room", 5);
-        availability.put("Double Room", 3);
-        availability.put("Suite Room", 0); // unavailable example
-    }
-
-    public int getAvailability(String roomType) {
-        return availability.getOrDefault(roomType, 0);
-    }
-
-    public Map<String, Integer> getAllAvailability() {
-        return availability;
-    }
-}
-
-// ---------- SEARCH SERVICE ----------
-class SearchService {
-
-    private RoomInventory inventory;
-
-    public SearchService(RoomInventory inventory) {
-        this.inventory = inventory;
-    }
-
-    public void searchAvailableRooms(Room[] rooms) {
-
-        System.out.println("===== Available Rooms =====");
-
-        for (Room room : rooms) {
-
-            int available = inventory.getAvailability(room.getRoomType());
-
-            // Validation: show only rooms with availability > 0
-            if (available > 0) {
-
-                room.displayDetails();
-                System.out.println("Available Rooms: " + available);
-                System.out.println("---------------------------");
-            }
-        }
-    }
-}
-
-// ---------- APPLICATION ENTRY ----------
-public class HotelSearchApplication {
+public class BookingRequestSystem {
 
     public static void main(String[] args) {
 
-        // Initialize inventory
-        RoomInventory inventory = new RoomInventory();
+        Scanner scanner = new Scanner(System.in);
+        Queue<Reservation> bookingQueue = new LinkedList<>();
 
-        // Create room domain objects
-        Room single = new Room("Single Room", 1, 100);
-        Room doubleRoom = new Room("Double Room", 2, 180);
-        Room suite = new Room("Suite Room", 3, 350);
+        System.out.println("=== Hotel Booking Request System ===");
 
-        Room[] rooms = {single, doubleRoom, suite};
+        System.out.print("Enter number of booking requests: ");
+        int n = scanner.nextInt();
+        scanner.nextLine();
 
-        // Create search service
-        SearchService searchService = new SearchService(inventory);
+        for (int i = 1; i <= n; i++) {
 
-        // Guest searches available rooms
-        searchService.searchAvailableRooms(rooms);
+            System.out.println("\nBooking Request " + i);
 
-        System.out.println("Search completed. System state unchanged.");
+            System.out.print("Enter Guest Name: ");
+            String name = scanner.nextLine();
+
+            System.out.print("Enter Room Type (Single/Double/Suite): ");
+            String room = scanner.nextLine();
+
+            bookingQueue.add(new Reservation(name, room));
+
+            System.out.println("Booking request added successfully!");
+        }
+
+        System.out.println("\n=== Booking Requests in Queue (FIFO Order) ===");
+
+        for (Reservation r : bookingQueue) {
+            r.display();
+        }
+
+        System.out.println("\nRequests are waiting for room allocation.");
+        scanner.close();
     }
 }
